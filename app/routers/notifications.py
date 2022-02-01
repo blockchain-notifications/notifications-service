@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
 
-from services.manager import manager
-from serializers.notifications import Notification
+from app.services.manager import manager
+from app.serializers.notifications import Notification
 
 
 notifications_router = APIRouter()

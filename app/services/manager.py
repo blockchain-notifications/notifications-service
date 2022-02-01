@@ -2,7 +2,7 @@ from typing import Dict
 
 from fastapi import WebSocket
 
-from serializers.notifications import Notification
+from app.serializers.notifications import Notification
 
 
 class ConnectionManager:
