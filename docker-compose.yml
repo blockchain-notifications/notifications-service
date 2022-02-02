@@ -10,7 +10,25 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - nginx_network
+      - project
+    env_file:
+      .env
+
+  explorer:
+    container_name: notifi_explorer
+    image: fenchelfen/notifications-service:notifi_app
+    command:
+      - python3
+      - app/services/explorer.py
+    volumes:
+      - explorer_data:/app/services/meta
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - project
+    env_file:
+      - .env
 
   postgres:
     image: postgres:12-alpine
@@ -25,11 +43,12 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - nginx_network
+      - project
 
 volumes:
   postgres_data:
+  explorer_data:
 
 networks:
-  nginx_network:
+  project:
     driver: bridge
