@@ -1,8 +1,8 @@
-from typing import Dict
+from typing import Dict, Union
 
 from fastapi import WebSocket
 
-from app.serializers.notifications import Notification
+from app.serializers.notifications import Push, AckResponse
 
 
 class ConnectionManager:
@@ -16,11 +16,11 @@ class ConnectionManager:
     def disconnect(self, client_id):
         self.active_connections.pop(client_id)
 
-    async def send_personal_message(self, notification: Notification, client_id: str):
+    async def send_personal_message(self, notification: Union[Push, AckResponse], client_id: str):
         websocket = self.active_connections.get(client_id)
         await websocket.send_json(notification.json())
 
-    async def broadcast(self, notification: Notification):
+    async def broadcast(self, notification: Push):
         for connection in self.active_connections.values():
             await connection.send_json(notification.json())
 
