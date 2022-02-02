@@ -9,6 +9,15 @@ class Push(BaseModel):
     event: str
 
 
+class PushReadOnly(BaseModel):
+    tx_hash: str
+    sender: str
+    recipient: str
+    data: str
+    event: str
+    is_read: bool
+
+
 class Ack(BaseModel):
     tx_hash: str
 

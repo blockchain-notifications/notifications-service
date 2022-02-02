@@ -1,4 +1,5 @@
 from json import JSONDecodeError
+from typing import List, Optional
 
 from fastapi import APIRouter
 from fastapi import WebSocket, WebSocketDisconnect
@@ -6,7 +7,7 @@ from pydantic import ValidationError
 
 from app.database.postgres import notifications, engine
 from app.services.manager import manager
-from app.serializers.notifications import Push, Ack, AckResponse
+from app.serializers.notifications import Push, Ack, AckResponse, PushReadOnly
 
 notifications_router = APIRouter()
 
@@ -54,8 +55,25 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         manager.disconnect(client_id)
 
 
-@notifications_router.post("/send_push")
-async def send_new_push(push: Push):
+@notifications_router.get("/notifications/")
+async def push_read(client_id: str, is_read: Optional[bool] = None) -> List[Push]:
+    if is_read is None:
+        pushes = engine.execute(
+            notifications.select().where(notifications.c.recipient == client_id)
+        )
+    else:
+        pushes = engine.execute(
+            notifications.select().where(
+                notifications.c.recipient == client_id,
+                notifications.c.is_read == is_read,
+            )
+        )
+
+    return list(map(lambda push: PushReadOnly.parse_obj(push), pushes))
+
+
+@notifications_router.post("/notifications/")
+async def push_send(push: Push):
     noty_exists = engine.execute(
         notifications.select().where(notifications.c.tx_hash == push.tx_hash)
     ).first()
