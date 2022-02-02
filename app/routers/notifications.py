@@ -56,7 +56,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
 
 @notifications_router.get("/notifications/")
-async def push_read(client_id: str, is_read: Optional[bool] = None) -> List[Push]:
+async def push_read(client_id: str, is_read: Optional[bool] = None) -> List[PushReadOnly]:
     if is_read is None:
         pushes = engine.execute(
             notifications.select().where(notifications.c.recipient == client_id)
@@ -87,6 +87,8 @@ async def push_send(push: Push):
     try:
         if push.recipient in manager.active_connections:
             await manager.send_personal_message(push, push.recipient)
+        else:
+            return {"status": "Recipient not found"}
     except WebSocketDisconnect:
         response["status"] = "disconnected"
     return response

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
+from app.config import HOSTNAME
 
 test_page_router = APIRouter()
 
@@ -23,7 +24,7 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://localhost:8000/ws/1");
+            var ws = new WebSocket("ws://%s/ws/1");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -50,7 +51,7 @@ html = """
         </script>
     </body>
 </html>
-"""
+""" % HOSTNAME
 
 
 @test_page_router.get("/")
